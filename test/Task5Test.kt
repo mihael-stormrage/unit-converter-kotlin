@@ -11,7 +11,7 @@ class Task5Test : ConverterTest<OutputClue>() {
     override fun generate(): List<TestCase<OutputClue>> {
         val l1 = listOf(
                 // tests from the example
-                authorsCase("1 degree Celsius to Kelvins\n" +
+                authorsCase("1 degree Celsius to kelvins\n" +
                         "-272.15 dc to K\n" +
                         "1 kn to feet\n" +
                         "1 km to feet\n" +
@@ -35,7 +35,7 @@ class Task5Test : ConverterTest<OutputClue>() {
                 authorsCase("100 AAA convertTo BBB\nexit"),
                 authorsCase("-100.0 X to Y\nexit", true),
                 authorsCase("-100.0 kelvin to Y\nexit"),
-                authorsCase("-100.0 X to Kelvin\nexit", true),
+                authorsCase("-100.0 X to kelvin\nexit", true),
                 authorsCase("100.0 X to Pound\nexit", true),
                 // negative unsupported
                 authorsCase("-100.1 cm to M\nexit"),
@@ -44,7 +44,7 @@ class Task5Test : ConverterTest<OutputClue>() {
                 authorsCase("-100.1 mg to g\nexit", true),
                 // incomparable
                 authorsCase("1 Pound to degrees Celsius\nexit"),
-                authorsCase("1 cm to Kelvin\nexit", true),
+                authorsCase("1 cm to kelvin\nexit", true),
                 authorsCase("1 k to mm\nexit", true),
                 authorsCase("1 g to df\nexit", true),
                 authorsCase("1 degrees celsius to Grams\nexit"),

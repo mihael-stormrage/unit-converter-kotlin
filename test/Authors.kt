@@ -46,7 +46,7 @@ val measures = listOf(
 
         Temperature.of("c", "degree Celsius", "degrees Celsius", 1.0, 0.0, "dc", "celsius"),
         Temperature.of("f", "degree Fahrenheit", "degrees Fahrenheit", 5 / 9.0, -32.0 * 5 / 9.0, "df", "fahrenheit"), // one df is (1 -32)* 5/9 dc
-        Temperature.of("k", "Kelvin", "Kelvins", 1.0, -273.15) // one Kelvin is 1*1.0 - 273.15 dc
+        Temperature.of("k", "kelvin", "kelvins", 1.0, -273.15) // one Kelvin is 1*1.0 - 273.15 dc
 )
 
 // we use lowercase names in map, but original names are not.

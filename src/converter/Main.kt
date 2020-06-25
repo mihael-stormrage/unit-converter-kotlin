@@ -2,115 +2,101 @@ package converter
 
 import java.util.Scanner
 
+val scanner = Scanner(System.`in`)
+
+fun parseMeasure(): String {
+    val firstWord = scanner.next()
+    return when (firstWord.toLowerCase()) {
+        "degree", "degrees" -> scanner.next()
+        else -> firstWord
+    }.toLowerCase()
+}
 
 fun main() {
-    val scanner = Scanner(System.`in`)
-
     println("Enter what you want to convert (or exit): ")
-    val line = scanner.next()
-    if (line == "exit") return
+    try {
+        val line = scanner.next()
+        if (line == "exit") return
+        val number = line.toDouble()
+        val measure = Units.findUnit(parseMeasure())
+        scanner.next()
+        val targetM = Units.findUnit(parseMeasure())
 
-    val number = line.toDouble()
-    val measure = scanner.next()
-    scanner.next()
-    val targetM = scanner.next()
+        println(measure.to(number, targetM))
 
-    println(measure.convertTo(number, true, targetM, true))
-
+    } catch (e: Exception) {
+        println("Parse error")
+    }
     main()
 }
 
-fun String.convertTo(n: Double,
-                     convert: Boolean = false,
-                     targetM: String = "",
-                     firstCall: Boolean = false): String {
+enum class Units(val category: Int,
+                 val short: String,
+                 val singular: String,
+                 val plural: String,
+                 val baseUnitFormula: Double = 1.0) {
 
-    fun s(num: Double = n) = if (num != 1.0) "s" else ""
-    val es = if (n != 1.0) "es" else ""
+    METER(1, "m", "meter", "meters"),
+    KILOMETER(1, "km", "kilometer", "kilometers", 1000.0),
+    CENTIMETER(1, "cm", "centimeter", "centimeters", 0.01),
+    MILLIMETER(1, "mm", "millimeter", "millimeters", 0.001),
+    YARD(1, "yd", "yard", "yards", 0.9144),
+    MILE(1, "mi", "mile", "miles", 1609.35),
+    INCH(1, "in", "inch", "inches", 0.0254),
+    FOOT(1, "ft", "foot", "feet", 0.3048),
 
-    val input = if (convert) this.convertTo(n) else ""
+    GRAM(2, "g", "gram", "grams"),
+    KILOGRAM(2, "kg", "kilogram", "kilograms", 1000.0),
+    MILLIGRAM(2, "mg", "milligram", "milligrams", 0.001),
+    POUND(2, "lb", "pound", "pounds", 453.592),
+    OUNCE(2, "oz", "ounce", "ounces", 28.3495),
 
-    val distance = when (this.toLowerCase()) {
-        "m", "meter", "meters" ->
-            if (convert) {
-                val targetFormat = targetM.convertTo(n).split(" ")
-                val new = s(targetFormat[0].toDouble())
-                val out = when (targetFormat[1]) {
-                    "meter$new" -> "$n"
-                    "kilometer$new" -> "${n / 1000}"
-                    "centimeter$new" -> "${n * 100}"
-                    "millimeter$new" -> "${n * 1000}"
-                    "yard$new" -> "${n / 0.9144}"
-                    "mile$new" -> "${n / 1609.35}"
-                    "inch", "inches" -> "${n / 0.0254}"
-                    "feet", "foot" -> "${n / 0.3048}"
-                    else -> ""
+    CELSIUS(3, "c", "dc", "celsius"),
+    FAHRENHEIT(3, "f", "df", "fahrenheit"),
+    KELVIN(3, "k", "kelvin", "kelvins"),
+
+    NULL(0, "???", "???", "???");
+
+    companion object {
+        fun findUnit(unitStr: String): Units {
+            for (enum in values())
+                when (unitStr) {
+                    enum.short, enum.plural, enum.singular -> return enum
                 }
-                return if (firstCall)
-                    "$input is " else {
-                    ""
-                } + targetFormat[1].convertTo(out.toDouble())
-            } else "$n meter${s()}"
-        "km", "kilometer", "kilometers" ->
-            if (convert) "${n * 1000}" else "$n kilometer${s()}"
-        "cm", "centimeter", "centimeters" ->
-            if (convert) "${n * 0.01}" else "$n centimeter${s()}"
-        "mm", "millimeter", "millimeters" ->
-            if (convert) "${n * 0.001}" else "$n millimeter${s()}"
-        "yd", "yard", "yards" ->
-            if (convert) "${n * 0.9144}" else "$n yard${s()}"
-        "mi", "mile", "miles" ->
-            if (convert) "${n * 1609.35}" else "$n mile${s()}"
-        "in", "inch", "inches" ->
-            if (convert) "${n * 0.0254}" else "$n inch$es"
-        "ft", "foot", "feet" -> when {
-            convert -> "${n * 0.3048}"
-            n != 1.0 -> "$n feet"
-            else -> "$n foot"
+            return NULL
         }
-        else -> ""
+    }
+}
+
+fun Units.to(n: Double, unit: Units): String {
+
+    fun s(num: Double = n, u: Units): String {
+        val ifTd = u.category == 3 && u != Units.KELVIN
+        return if (num != 1.0)
+            if (ifTd) "degrees ${u.plural.capitalize()}" else u.plural
+        else if (ifTd) "degree ${u.plural.capitalize()}" else u.singular
     }
 
-    val weights = when (this.toLowerCase()) {
-        "g", "gram", "grams" ->
-            if (convert) {
-                val targetFormat = targetM.convertTo(n).split(" ")
-                val new = s(targetFormat[0].toDouble())
-                val out = when (targetFormat[1]) {
-                    "gram$new" -> "$n"
-                    "kilogram$new" -> "${n / 1000}"
-                    "milligram$new" -> "${n * 1000}"
-                    "pound$new" -> "${n / 453.592}"
-                    "ounce$new" -> "${n / 28.3495}"
-                    else -> ""
-                }
-                return if (firstCall)
-                    "$input is " else {
-                    ""
-                } + targetFormat[1].convertTo(out.toDouble())
-            } else "$n gram${s()}"
-        "kg", "kilogram", "kilograms" ->
-            if (convert) "${n * 1000}" else "$n kilogram${s()}"
-        "mg", "milligram", "milligrams" ->
-            if (convert) "${n * 0.001}" else "$n milligram${s()}"
-        "lb", "pound", "pounds" ->
-            if (convert) "${n * 453.592}" else "$n pound${s()}"
-        "oz", "ounce", "ounces" ->
-            if (convert) "${n * 28.3495}" else "$n ounce${s()}"
+    val impossible = "Conversion from ${s(0.0, this)} to ${s(0.0, unit)} is impossible"
+    val output = if (this.category == unit.category) {
 
-        else -> ""
-    }
+        val nonNeg = " shouldn't be negative"
+        when {
+            category == 1 && n < 0 -> return "Length$nonNeg"
+            category == 2 && n < 0 -> return "Weight$nonNeg"
+        }
 
-    fun baseConvert(u: String, output: String) =
-            "$input is " + u.convertTo(
-                    output.toDouble(),
-                    convert = true,
-                    targetM = targetM
-            )
+        when (this.category) {
+            1, 2 -> n * this.baseUnitFormula / unit.baseUnitFormula
+            3 -> when {
+                this == unit -> n
+                this == Units.CELSIUS -> if (unit == Units.FAHRENHEIT) n * 9 / 5 + 32 else n + 273.15 // to F or to K
+                this == Units.FAHRENHEIT -> if (unit == Units.CELSIUS) (n - 32) * 5 / 9 else (n + 459.67) * 5 / 9 // to C or to K
+                else -> if (unit == Units.CELSIUS) n - 273.15 else n * 9 / 5 - 459.67 // K to C or to F
+            }
+            else -> return impossible
+        }
+    } else return impossible
 
-    return when {
-        !distance.isBlank() -> if (convert) baseConvert("m", distance) else distance
-        !weights.isBlank() -> if (convert) baseConvert("g", weights) else weights
-        else -> ""
-    }
+    return "$n ${s(n, this)} is $output ${s(output, unit)}"
 }
